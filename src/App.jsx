@@ -40,24 +40,33 @@ function App() {
   };
 
   const parseSpeech = (text) => {
-    const cleaned = text.replace(/[^\u0B80-\u0BFFa-zA-Z0-9\s]/g, "").trim();
+    const cleaned = text
+      .replace(/[^\u0B80-\u0BFFa-zA-Z0-9\s]/g, "")
+      .toLowerCase()
+      .trim();
+  
     const words = cleaned.split(" ").filter(Boolean);
     if (words.length === 0) return null;
-
+  
     let amount = null;
-    let name = words.join(" ");
-
-    for (let i = words.length - 1; i >= 0; i--) {
-      const maybeAmount = parseInt(words[i]);
-      if (!isNaN(maybeAmount)) {
-        amount = maybeAmount;
-        name = words.slice(0, i).join(" ");
-        break;
-      }
-    }
-
-    return { name: name.trim(), amount };
+    let nameWords = [];
+  
+    words.forEach((word) => {
+      const num = parseInt(word);
+      if (!isNaN(num)) amount = num;
+      else nameWords.push(word);
+    });
+  
+    const name = nameWords.join(" ").replace(/\b(oru|packet|pathu|item)\b/gi, "").trim();
+  
+    if (!name) return null;
+  
+    return {
+      name: name.charAt(0).toUpperCase() + name.slice(1),
+      amount: amount || null,
+    };
   };
+  
 
   return (
     <div className="p-8 max-w-2xl mx-auto min-h-screen">
